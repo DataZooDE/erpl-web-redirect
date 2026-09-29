@@ -50,6 +50,9 @@ jobs:
       deploy_latest: ${{ startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main' }}
       deploy_versioned: ${{ startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main' }}
 
+  # windows_amd64 is excluded from every v1.4.5 leg, as in erpl-odata: erpl_odata is not
+  # published for that combination (its pinned vcpkg commit cannot fetch msys2-runtime), so a
+  # stub there would point users at an extension they cannot install.
   duckdb-v145-build:
     name: Build extension binaries (v1.4.5)
     uses: duckdb/extension-ci-tools/.github/workflows/_extension_distribution.yml@v1.4-andium
@@ -58,7 +61,7 @@ jobs:
       extension_name: erpl_web
       ci_tools_version: v1.4-andium
       skip_tests: true
-      exclude_archs: 'windows_amd64_rtools;windows_amd64_mingw;wasm_mvp;wasm_eh;wasm_threads;'
+      exclude_archs: 'windows_amd64;windows_amd64_rtools;windows_amd64_mingw;wasm_mvp;wasm_eh;wasm_threads;'
 
   duckdb-v145-smoke-test:
     name: Smoke test (v1.4.5)
@@ -67,7 +70,7 @@ jobs:
     with:
       duckdb_version: v1.4.5
       extension_name: erpl_web
-      exclude_archs: 'windows_amd64_rtools;windows_amd64_mingw;wasm_mvp;wasm_eh;wasm_threads;'
+      exclude_archs: 'windows_amd64;windows_amd64_rtools;windows_amd64_mingw;wasm_mvp;wasm_eh;wasm_threads;'
 
   duckdb-v145-deploy:
     name: Deploy extension binaries (v1.4.5)
@@ -77,6 +80,6 @@ jobs:
     with:
       duckdb_version: v1.4.5
       extension_name: erpl_web
-      exclude_archs: 'windows_amd64_rtools;windows_amd64_mingw;wasm_mvp;wasm_eh;wasm_threads;'
+      exclude_archs: 'windows_amd64;windows_amd64_rtools;windows_amd64_mingw;wasm_mvp;wasm_eh;wasm_threads;'
       deploy_latest: ${{ startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main' }}
       deploy_versioned: ${{ startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main' }}
