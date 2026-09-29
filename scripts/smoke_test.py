@@ -59,19 +59,21 @@ def run_smoke_test(extension_path: str, duckdb_version: str, arch: str) -> None:
         raise SystemExit(f"Extension artifact not found: {extension_path}")
 
     ext_sql_path = extension_path.replace("\\", "/")
-    sql = f"LOAD '{ext_sql_path}';\nSELECT 42 AS should_not_be_reached;\n"
+    sql = f"LOAD '{ext_sql_path}';"
 
     with tempfile.TemporaryDirectory() as tmpdir:
         duckdb_bin = os.environ.get("DUCKDB_BIN") or download_duckdb_cli(duckdb_version, arch, tmpdir)
         proc = subprocess.run(
-            [duckdb_bin, "-unsigned"], input=sql, capture_output=True,
+            # -c rather than stdin: the CLI keeps executing piped statements after an error
+            # and exits 0, which would make a failed LOAD look like a success.
+            [duckdb_bin, "-unsigned", "-c", sql], capture_output=True,
             text=True, encoding="utf-8", errors="replace",
         )
 
     combined = (proc.stdout or "") + (proc.stderr or "")
     print(combined)
 
-    if proc.returncode == 0 or "should_not_be_reached" in (proc.stdout or ""):
+    if proc.returncode == 0:
         raise SystemExit("Smoke test FAILED: LOAD of the erpl_web stub succeeded; it must fail")
     missing = [fragment for fragment in REQUIRED_FRAGMENTS if fragment not in combined]
     if missing:
