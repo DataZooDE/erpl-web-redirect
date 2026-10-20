@@ -50,7 +50,11 @@ jobs:
       extension_name: erpl_web
       exclude_archs: 'windows_amd64_rtools;windows_amd64_mingw;wasm_mvp;wasm_eh;wasm_threads;'
       deploy_latest: ${{ startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main' }}
-      deploy_versioned: ${{ startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main' }}
+      # Versioned paths (<name>/vYYYY.MM.DD/...) come ONLY from the tag run. A main
+      # push of the same commit builds before the tag exists (stamp vX-N-gSHA), and its
+      # deploy resolves the tag at upload time: if it runs after the tag run it
+      # overwrites the release with that pre-tag build (hit duckdb-gdrive v2026.10.17).
+      deploy_versioned: ${{ startsWith(github.ref, 'refs/tags/v') }}
 
   # windows_amd64 is excluded from every v1.4.5 leg, as in erpl-odata: erpl_odata is not
   # published for that combination (its pinned vcpkg commit cannot fetch msys2-runtime), so a
@@ -84,4 +88,8 @@ jobs:
       extension_name: erpl_web
       exclude_archs: 'windows_amd64;windows_amd64_rtools;windows_amd64_mingw;wasm_mvp;wasm_eh;wasm_threads;'
       deploy_latest: ${{ startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main' }}
-      deploy_versioned: ${{ startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main' }}
+      # Versioned paths (<name>/vYYYY.MM.DD/...) come ONLY from the tag run. A main
+      # push of the same commit builds before the tag exists (stamp vX-N-gSHA), and its
+      # deploy resolves the tag at upload time: if it runs after the tag run it
+      # overwrites the release with that pre-tag build (hit duckdb-gdrive v2026.10.17).
+      deploy_versioned: ${{ startsWith(github.ref, 'refs/tags/v') }}
